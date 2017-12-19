@@ -2,14 +2,14 @@ const moment = require("moment");
 
 module.exports = (raw) => {
   return raw.map((obj) => {
-    let [fromCurrency, toCurrency] = obj.Market.split('/');
-    let feePercentage = parseFloat(obj.Fee.slice(0, -1));
-    let rate = parseFloat(obj.Price);
-    let boughtAmount = parseFloat(obj['Base Total Less Fee']);
-    let feeToCurrency = parseFloat(obj.Total) - boughtAmount;
+    let [fromCurrency, toCurrency] = obj.Exchange.split('-');
+    let feePercentage = (parseFloat(obj.CommissionPaid) / parseFloat(obj.Quantity)) * 100;
+    let boughtAmount = parseFloat(obj.Quantity);
+    let rate = parseFloat(obj.Limit);
+    let feeToCurrency = parseFloat(obj.CommissionPaid);
     let feeFromCurrency = feeToCurrency / rate;
     return {
-      bookID: obj['Order Number'],
+      bookID: obj.OrderUuid,
       fee: {
         percentage: feePercentage,
         absolute: {
@@ -18,15 +18,15 @@ module.exports = (raw) => {
       },
       sold: {
         currency: fromCurrency,
-        valueGross: parseFloat(obj.Amount) //Gross value
+        valueGross: parseFloat(obj.Price) //Gross value
       },
       bought: {
         currency: toCurrency,
         valueNet: boughtAmount // NET value
       },
       rate,
-      date: moment.utc(obj.Date).valueOf(),
-      exchange: 'poloniex'
+      date: moment.utc(obj.Closed, "MM/DD/YYYY hh:mm:ss A").valueOf(),
+      exchange: 'bittrex'
     }
   })
 }

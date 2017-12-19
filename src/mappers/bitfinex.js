@@ -29,7 +29,7 @@ module.exports = (raw) => {
         valueNet
       },
       rate,
-      date: moment.utc(obj.Date),
+      date: moment.utc(obj.Date).valueOf(),
       exchange: 'bitfinex'
     }
   })
